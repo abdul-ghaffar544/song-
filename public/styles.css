@@ -1,0 +1,42 @@
+*{box-sizing:border-box} :root{--bg:#0b0f14;--fg:#e7edf3;--muted:#92a2b6;--card:#131a22;--accent:#4da3ff;--accent-2:#88c9ff;--danger:#ff6b6b}
+html,body{height:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:var(--fg);background:linear-gradient(180deg,#0b0f14 0%,#0e1218 100%) fixed;}
+.container{max-width:900px;margin:0 auto;padding:18px}
+h1{margin:0 0 6px;font-weight:800;letter-spacing:.4px}
+h2{margin:0}
+.muted{color:var(--muted)}
+
+.card{background:var(--card);border:1px solid #1f2a37;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+.uploader{margin-bottom:16px}
+.dropzone{border:2px dashed #2a3a4f;border-radius:16px;padding:26px;text-align:center;transition:.2s;background:rgba(255,255,255,.02)}
+.dropzone:focus{outline:2px solid var(--accent)}
+.dropzone.drag{background:rgba(77,163,255,.08);border-color:var(--accent)}
+.btn,.btn-outline{display:inline-block;padding:10px 14px;border-radius:999px;font-weight:700;cursor:pointer;border:none}
+.btn{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#0b0f14}
+.btn-outline{background:transparent;border:1px solid #2a3a4f;color:var(--fg)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{transform:translateY(1px)}
+.sm{font-size:.9em;padding:6px 10px}
+
+.controls{margin-bottom:16px}
+.now-playing{font-weight:700;margin-bottom:10px}
+.control-buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.vol{display:flex;gap:8px;align-items:center}
+.chk{display:flex;gap:6px;align-items:center}
+
+.playlist ul{list-style:none;margin:0;padding:0}
+.playlist li{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #1f2a37}
+.playlist li .meta{display:flex;gap:12px;align-items:center}
+.playlist li .title{font-weight:600}
+.playlist li .size{color:var(--muted);font-size:.9em}
+.actions{display:flex;gap:8px}
+.icon-btn{border:1px solid #2a3a4f;background:transparent;border-radius:10px;padding:6px 10px;color:var(--fg);cursor:pointer}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+
+.status{margin-top:10px;min-height:20px;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+a{color:var(--accent)}
+audio{width:100%;margin-top:8px}

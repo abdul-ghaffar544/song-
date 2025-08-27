@@ -1,0 +1,16 @@
+{
+  "name": "song-uploader-player",
+  "version": "1.0.0",
+  "description": "Upload audio files and play them in a browser with a simple playlist UI (Node + Express + Multer).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

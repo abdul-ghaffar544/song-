@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Song Uploader & Player</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="container">
+    <h1>🎧 Song Uploader & Player</h1>
+    <p class="muted">Upload your audio files and play them in a simple playlist.</p>
+  </header>
+
+  <main class="container">
+    <section class="uploader">
+      <div id="dropzone" class="dropzone" tabindex="0">
+        <div>
+          <strong>Drop</strong> audio files here or
+          <label for="file-input" class="btn">Choose Files</label>
+          <input type="file" id="file-input" accept="audio/*" multiple hidden>
+        </div>
+        <small class="muted">Accepted: mp3, wav, ogg, m4a, aac, flac (≤ 50MB each)</small>
+      </div>
+      <div id="upload-status" class="status"></div>
+    </section>
+
+    <section class="controls card">
+      <div class="now-playing">
+        <span id="now-title">No song selected</span>
+      </div>
+      <audio id="audio" preload="none" controls></audio>
+      <div class="control-buttons">
+        <button id="prev" class="btn-outline">⏮ Prev</button>
+        <button id="playpause" class="btn">▶ Play/Pause</button>
+        <button id="next" class="btn-outline">⏭ Next</button>
+        <label class="vol">Vol <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
+        <label class="chk"><input id="loop" type="checkbox"> Loop</label>
+        <label class="chk"><input id="shuffle" type="checkbox"> Shuffle</label>
+      </div>
+    </section>
+
+    <section class="playlist card">
+      <div class="row">
+        <h2>Playlist</h2>
+        <button id="refresh" class="btn-outline sm">⟳ Refresh</button>
+      </div>
+      <ul id="list"></ul>
+    </section>
+  </main>
+
+  <footer class="container muted">
+    <p>Tip: You can delete a track from the server using the 🗑 button in the list.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
