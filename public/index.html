@@ -3,55 +3,109 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Song Uploader & Player</title>
+  <title>MusicPro - Upload & Play Your Music</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="container">
-    <h1>🎧 Song Uploader & Player</h1>
-    <p class="muted">Upload your audio files and play them in a simple playlist.</p>
-  </header>
+  <!-- Top Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">🎵</span>
+        <span class="logo-text">MusicPro</span>
+      </div>
+    </div>
+  </nav>
 
-  <main class="container">
-    <section class="uploader">
-      <div id="dropzone" class="dropzone" tabindex="0">
-        <div>
-          <strong>Drop</strong> audio files here or
-          <label for="file-input" class="btn">Choose Files</label>
-          <input type="file" id="file-input" accept="audio/*" multiple hidden>
+  <main class="main-container">
+    <!-- Upload Card -->
+    <section class="upload-card card">
+      <h2 class="card-title">Upload Music</h2>
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop files here or click to select">
+        <div class="dropzone-content">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">
+            <strong>Drop</strong> audio files here or
+            <label for="file-input" class="btn-link">choose files</label>
+            <input type="file" id="file-input" accept="audio/*" multiple hidden>
+          </div>
+          <small class="dropzone-hint">Supported: MP3, WAV, OGG, M4A, AAC, FLAC (≤ 50MB each)</small>
         </div>
-        <small class="muted">Accepted: mp3, wav, ogg, m4a, aac, flac (≤ 50MB each)</small>
       </div>
-      <div id="upload-status" class="status"></div>
+      <div id="upload-status" class="upload-status" aria-live="polite"></div>
+      <div id="upload-progress" class="upload-progress"></div>
     </section>
 
-    <section class="controls card">
+    <!-- Player Card -->
+    <section class="player-card card">
+      <h2 class="card-title">Now Playing</h2>
       <div class="now-playing">
-        <span id="now-title">No song selected</span>
+        <div class="now-playing-title">
+          <span id="now-title" class="track-title">No song selected</span>
+        </div>
       </div>
-      <audio id="audio" preload="none" controls></audio>
+      <div class="audio-container">
+        <audio id="audio" preload="none" controls></audio>
+      </div>
       <div class="control-buttons">
-        <button id="prev" class="btn-outline">⏮ Prev</button>
-        <button id="playpause" class="btn">▶ Play/Pause</button>
-        <button id="next" class="btn-outline">⏭ Next</button>
-        <label class="vol">Vol <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-        <label class="chk"><input id="loop" type="checkbox"> Loop</label>
-        <label class="chk"><input id="shuffle" type="checkbox"> Shuffle</label>
+        <button id="prev" class="btn-control" aria-label="Previous track" title="Previous (J)">⏮</button>
+        <button id="playpause" class="btn-control primary" aria-label="Play or pause" title="Play/Pause (Space)">▶</button>
+        <button id="next" class="btn-control" aria-label="Next track" title="Next (K)">⏭</button>
+        <div class="volume-control">
+          <label for="volume" class="sr-only">Volume</label>
+          <span class="volume-icon">🔊</span>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" class="volume-slider" aria-label="Volume">
+        </div>
+        <label class="toggle-control">
+          <input id="loop" type="checkbox">
+          <span class="toggle-label" title="Loop (L)">🔁</span>
+        </label>
+        <label class="toggle-control">
+          <input id="shuffle" type="checkbox">
+          <span class="toggle-label" title="Shuffle (S)">🔀</span>
+        </label>
       </div>
     </section>
 
-    <section class="playlist card">
-      <div class="row">
-        <h2>Playlist</h2>
-        <button id="refresh" class="btn-outline sm">⟳ Refresh</button>
+    <!-- Playlist Card -->
+    <section class="playlist-card card">
+      <div class="playlist-header">
+        <h2 class="card-title">Playlist</h2>
+        <button id="refresh" class="btn-refresh" aria-label="Refresh playlist" title="Refresh">⟳</button>
       </div>
-      <ul id="list"></ul>
+      
+      <!-- Tab Navigation -->
+      <div class="tab-nav" role="tablist">
+        <button id="tab-my" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-my">My Uploads</button>
+        <button id="tab-public" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-public">Public Uploads</button>
+        <div class="tab-indicator"></div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-container">
+        <input id="search-input" type="text" placeholder="Search tracks..." class="search-input" aria-label="Search tracks">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <!-- Tab Panels -->
+      <div id="panel-my" class="tab-panel active" role="tabpanel" aria-labelledby="tab-my">
+        <ul id="list-my" class="playlist-list"></ul>
+      </div>
+      <div id="panel-public" class="tab-panel" role="tabpanel" aria-labelledby="tab-public">
+        <ul id="list-public" class="playlist-list"></ul>
+      </div>
     </section>
   </main>
 
-  <footer class="container muted">
-    <p>Tip: You can delete a track from the server using the 🗑 button in the list.</p>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-tip">💡 Tip: Use keyboard shortcuts - Space (play/pause), J/K (prev/next), L (loop), S (shuffle)</p>
+    </div>
   </footer>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>

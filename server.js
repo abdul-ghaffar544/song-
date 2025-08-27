@@ -11,6 +11,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -123,5 +124,8 @@ app.delete('/api/songs/:filename', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🎵 Server running at http://localhost:${PORT}`);
+  console.log(`🎵 MusicPro Server running at http://localhost:${PORT}`);
+  console.log(`📁 Upload directory: ${UPLOAD_DIR}`);
+  console.log(`🌐 Environment: ${NODE_ENV}`);
+  console.log(`🚀 Ready to rock! 🎶`);
 });
