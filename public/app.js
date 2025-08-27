@@ -5,18 +5,36 @@ const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 // DOM Elements
 const audio = $('#audio');
 const nowTitle = $('#now-title');
+const trackInfo = $('#track-info');
 const listMy = $('#list-my');
-const listPublic = $('#list-public');
+const listAll = $('#list-all');
 const searchInput = $('#search-input');
 const uploadStatus = $('#upload-status');
 const uploadProgress = $('#upload-progress');
 const toastContainer = $('#toast-container');
 
+// Record Player Elements
+const vinylRecord = $('#vinyl-record');
+const vinylCover = $('#vinyl-cover');
+const vinylPlaceholder = $('#vinyl-placeholder');
+const tonearm = $('#tonearm');
+
 // Tab Elements
 const tabMy = $('#tab-my');
-const tabPublic = $('#tab-public');
+const tabAll = $('#tab-all');
 const panelMy = $('#panel-my');
-const panelPublic = $('#panel-public');
+const panelAll = $('#panel-all');
+
+// Lyrics Elements
+const lyricsContent = $('#lyrics-content');
+const lyricsModal = $('#lyrics-modal');
+const lyricsTextarea = $('#lyrics-textarea');
+const modalBackdrop = $('#modal-backdrop');
+
+// Media Upload Elements
+const coverInput = $('#cover-input');
+const lyricsInput = $('#lyrics-input');
+const lyricsTextBtn = $('#lyrics-text-btn');
 
 // State Management
 let allSongs = [];
@@ -26,30 +44,52 @@ let currentTab = 'my';
 let currentPlaylist = [];
 let current = -1;
 let searchTerm = '';
+let currentLyrics = null;
+let lyricsType = null;
 
-// LocalStorage Management
-function getMyUploadsFromStorage() {
+// LocalStorage Management for Delete Tokens
+function getDeleteTokens() {
   try {
-    const stored = localStorage.getItem('myUploads');
-    return stored ? JSON.parse(stored) : [];
+    const stored = localStorage.getItem('deleteTokens');
+    return stored ? JSON.parse(stored) : {};
   } catch (e) {
-    console.warn('Failed to parse myUploads from localStorage:', e);
-    return [];
+    console.warn('Failed to parse deleteTokens from localStorage:', e);
+    return {};
   }
 }
 
-function saveMyUploadsToStorage(filenames) {
+function saveDeleteTokens(tokens) {
   try {
-    localStorage.setItem('myUploads', JSON.stringify(filenames));
+    localStorage.setItem('deleteTokens', JSON.stringify(tokens));
   } catch (e) {
-    console.warn('Failed to save myUploads to localStorage:', e);
+    console.warn('Failed to save deleteTokens to localStorage:', e);
   }
 }
 
-function addToMyUploads(filenames) {
-  const existing = getMyUploadsFromStorage();
-  const updated = [...new Set([...existing, ...filenames])];
-  saveMyUploadsToStorage(updated);
+function addDeleteTokens(files) {
+  const tokens = getDeleteTokens();
+  files.forEach(file => {
+    if (file.deleteToken) {
+      tokens[file.filename] = file.deleteToken;
+    }
+  });
+  saveDeleteTokens(tokens);
+}
+
+function hasDeleteToken(filename) {
+  const tokens = getDeleteTokens();
+  return tokens.hasOwnProperty(filename);
+}
+
+function getDeleteToken(filename) {
+  const tokens = getDeleteTokens();
+  return tokens[filename];
+}
+
+function removeDeleteToken(filename) {
+  const tokens = getDeleteTokens();
+  delete tokens[filename];
+  saveDeleteTokens(tokens);
 }
 
 // Utility Functions
@@ -69,7 +109,6 @@ function showToast(message, type = 'info') {
   toast.textContent = message;
   toastContainer.appendChild(toast);
 
-  // Auto remove after 4 seconds
   setTimeout(() => {
     if (toast.parentNode) {
       toast.style.animation = 'toastIn 0.3s ease reverse';
@@ -94,6 +133,206 @@ function debounce(func, wait) {
   };
 }
 
+// Record Player Animation Functions
+function startVinylAnimation() {
+  vinylRecord.classList.remove('spinning-down');
+  vinylRecord.classList.add('spinning-up');
+  tonearm.classList.add('playing');
+  
+  setTimeout(() => {
+    vinylRecord.classList.remove('spinning-up');
+    vinylRecord.classList.add('spinning');
+  }, 300);
+}
+
+function stopVinylAnimation() {
+  vinylRecord.classList.remove('spinning');
+  vinylRecord.classList.add('spinning-down');
+  tonearm.classList.remove('playing');
+  
+  setTimeout(() => {
+    vinylRecord.classList.remove('spinning-down');
+  }, 300);
+}
+
+function updateVinylCover(coverUrl) {
+  if (coverUrl) {
+    vinylCover.src = coverUrl;
+    vinylCover.style.display = 'block';
+    vinylPlaceholder.style.display = 'none';
+  } else {
+    vinylCover.style.display = 'none';
+    vinylPlaceholder.style.display = 'flex';
+  }
+}
+
+// Lyrics Functions
+function parseLRC(content) {
+  const lines = content.split('\n');
+  const lyrics = [];
+  
+  lines.forEach(line => {
+    const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2})\](.*)/);
+    if (match) {
+      const minutes = parseInt(match[1]);
+      const seconds = parseInt(match[2]);
+      const centiseconds = parseInt(match[3]);
+      const time = minutes * 60 + seconds + centiseconds / 100;
+      const text = match[4].trim();
+      
+      if (text) {
+        lyrics.push({ time, text });
+      }
+    }
+  });
+  
+  return lyrics.sort((a, b) => a.time - b.time);
+}
+
+function displayLyrics(content, type) {
+  lyricsContent.innerHTML = '';
+  
+  if (!content) {
+    lyricsContent.innerHTML = `
+      <div class="lyrics-placeholder">
+        <span class="lyrics-icon">🎤</span>
+        <p>No lyrics available</p>
+        <small>Upload lyrics for the current track</small>
+      </div>
+    `;
+    return;
+  }
+  
+  if (type === 'lrc') {
+    currentLyrics = parseLRC(content);
+    lyricsType = 'lrc';
+    
+    const lyricsDiv = document.createElement('div');
+    lyricsDiv.className = 'lyrics-text';
+    
+    currentLyrics.forEach((lyric, index) => {
+      const line = document.createElement('span');
+      line.className = 'lyrics-line';
+      line.textContent = lyric.text;
+      line.dataset.time = lyric.time;
+      line.dataset.index = index;
+      lyricsDiv.appendChild(line);
+    });
+    
+    lyricsContent.appendChild(lyricsDiv);
+  } else {
+    lyricsType = 'txt';
+    const lyricsDiv = document.createElement('div');
+    lyricsDiv.className = 'lyrics-text';
+    lyricsDiv.textContent = content;
+    lyricsContent.appendChild(lyricsDiv);
+  }
+}
+
+function updateLyricsHighlight(currentTime) {
+  if (lyricsType !== 'lrc' || !currentLyrics) return;
+  
+  const lines = $$('.lyrics-line');
+  let activeIndex = -1;
+  
+  // Find the active line
+  for (let i = 0; i < currentLyrics.length; i++) {
+    if (currentTime >= currentLyrics[i].time) {
+      activeIndex = i;
+    } else {
+      break;
+    }
+  }
+  
+  // Update highlights
+  lines.forEach((line, index) => {
+    if (index === activeIndex) {
+      line.classList.add('active');
+      // Scroll into view
+      line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      line.classList.remove('active');
+    }
+  });
+}
+
+async function loadLyrics(filename) {
+  try {
+    const baseName = filename.split('.')[0];
+    const response = await fetch(`/api/lyrics/${baseName}.lrc`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      displayLyrics(data.content, data.type);
+      return;
+    }
+    
+    // Try .txt if .lrc not found
+    const txtResponse = await fetch(`/api/lyrics/${baseName}.txt`);
+    if (txtResponse.ok) {
+      const data = await txtResponse.json();
+      displayLyrics(data.content, data.type);
+      return;
+    }
+    
+    // No lyrics found
+    displayLyrics(null, null);
+  } catch (error) {
+    console.warn('Failed to load lyrics:', error);
+    displayLyrics(null, null);
+  }
+}
+
+// Modal Functions
+function showLyricsModal() {
+  lyricsModal.style.display = 'flex';
+  modalBackdrop.style.display = 'block';
+  lyricsTextarea.value = '';
+  lyricsTextarea.focus();
+}
+
+function hideLyricsModal() {
+  lyricsModal.style.display = 'none';
+  modalBackdrop.style.display = 'none';
+}
+
+async function saveLyricsText() {
+  const lyricsText = lyricsTextarea.value.trim();
+  if (!lyricsText) {
+    showToast('Please enter lyrics text', 'error');
+    return;
+  }
+  
+  if (current === -1 || !currentPlaylist[current]) {
+    showToast('Please select a track first', 'error');
+    return;
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append('filename', currentPlaylist[current].filename);
+    formData.append('lyrics', lyricsText);
+    
+    const response = await fetch('/api/lyrics', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    if (result.ok) {
+      showToast('Lyrics saved successfully!', 'success');
+      hideLyricsModal();
+      await fetchSongs();
+      displayLyrics(lyricsText, lyricsText.includes('[') ? 'lrc' : 'txt');
+    } else {
+      throw new Error(result.error || 'Failed to save lyrics');
+    }
+  } catch (error) {
+    console.error('Failed to save lyrics:', error);
+    showToast(`Failed to save lyrics: ${error.message}`, 'error');
+  }
+}
+
 // Data Fetching and Processing
 async function fetchSongs() {
   try {
@@ -111,14 +350,14 @@ async function fetchSongs() {
 }
 
 function processSongs() {
-  const myUploadFilenames = getMyUploadsFromStorage();
+  const deleteTokens = getDeleteTokens();
   
   myUploads = allSongs.filter(song => 
-    myUploadFilenames.includes(song.filename)
+    deleteTokens.hasOwnProperty(song.filename)
   );
   
   publicUploads = allSongs.filter(song => 
-    !myUploadFilenames.includes(song.filename)
+    !deleteTokens.hasOwnProperty(song.filename)
   );
 }
 
@@ -137,7 +376,6 @@ function getCurrentPlaylist() {
 
 // Rendering Functions
 function renderList(listElement, songs, isMyUploads = false) {
-  // Clear existing items
   listElement.innerHTML = '';
   
   if (songs.length === 0) {
@@ -162,7 +400,10 @@ function renderList(listElement, songs, isMyUploads = false) {
       </div>
       <div class="track-actions">
         <a class="action-btn" href="${track.url}" download title="Download ${track.filename}" aria-label="Download ${track.filename}">⬇</a>
-        <button class="action-btn danger" data-del="${track.filename}" title="Delete ${track.filename}" aria-label="Delete ${track.filename}">🗑</button>
+        ${isMyUploads ? 
+          `<button class="action-btn danger" data-del="${track.filename}" title="Delete ${track.filename}" aria-label="Delete ${track.filename}">🗑</button>` :
+          ''
+        }
       </div>
     `;
     
@@ -170,21 +411,18 @@ function renderList(listElement, songs, isMyUploads = false) {
       li.classList.add('current');
     }
     
-    // Add entrance animation
     li.style.animationDelay = `${i * 50}ms`;
-    
     listElement.appendChild(li);
   });
 }
 
 function renderCurrentTab() {
   const filteredMy = filterSongs(myUploads, searchTerm);
-  const filteredPublic = filterSongs(publicUploads, searchTerm);
+  const filteredAll = filterSongs(publicUploads, searchTerm);
   
   renderList(listMy, filteredMy, true);
-  renderList(listPublic, filteredPublic, false);
+  renderList(listAll, filteredAll, false);
   
-  // Update current playlist
   currentPlaylist = getCurrentPlaylist();
 }
 
@@ -194,20 +432,16 @@ function switchTab(tab) {
   
   currentTab = tab;
   
-  // Update tab buttons
   tabMy.classList.toggle('active', tab === 'my');
-  tabPublic.classList.toggle('active', tab === 'public');
+  tabAll.classList.toggle('active', tab === 'all');
   tabMy.setAttribute('aria-selected', tab === 'my');
-  tabPublic.setAttribute('aria-selected', tab === 'public');
+  tabAll.setAttribute('aria-selected', tab === 'all');
   
-  // Update panels
   panelMy.classList.toggle('active', tab === 'my');
-  panelPublic.classList.toggle('active', tab === 'public');
+  panelAll.classList.toggle('active', tab === 'all');
   
-  // Update current playlist
   currentPlaylist = getCurrentPlaylist();
   
-  // Reset current index if not in new playlist
   if (current >= 0 && currentPlaylist[current] && 
       !currentPlaylist.some(track => track.filename === (allSongs[current] && allSongs[current].filename))) {
     current = -1;
@@ -229,7 +463,22 @@ function playIndex(i) {
   audio.src = track.url;
   nowTitle.textContent = track.filename;
   
-  // Update play button text
+  // Update track info
+  trackInfo.textContent = `${fmtBytes(track.size)} • ${currentTab === 'my' ? 'My Upload' : 'Public'}`;
+  
+  // Update vinyl cover
+  updateVinylCover(track.coverUrl);
+  
+  // Load lyrics
+  loadLyrics(track.filename);
+  
+  // Update title scrolling
+  if (track.filename.length > 30) {
+    nowTitle.classList.add('scrolling');
+  } else {
+    nowTitle.classList.remove('scrolling');
+  }
+  
   $('#playpause').textContent = '⏸';
   
   audio.play().catch(e => {
@@ -238,8 +487,6 @@ function playIndex(i) {
   });
   
   renderCurrentTab();
-  
-  // Show now playing toast
   showToast(`Now playing: ${track.filename}`, 'success');
 }
 
@@ -281,13 +528,18 @@ function togglePlayPause() {
   }
 }
 
-// Delete Function with Animation
+// Delete Function with Secure Authorization
 async function deleteSong(filename) {
   const confirmed = confirm(`Delete "${filename}" from server?`);
   if (!confirmed) return;
   
+  const token = getDeleteToken(filename);
+  if (!token) {
+    showToast('You can only delete your own uploads', 'error');
+    return;
+  }
+
   try {
-    // Find and animate the item being deleted
     const items = $$('.playlist-item');
     const itemToDelete = items.find(item => {
       const delBtn = item.querySelector('[data-del]');
@@ -300,7 +552,10 @@ async function deleteSong(filename) {
     }
     
     const res = await fetch(`/api/songs/${encodeURIComponent(filename)}`, { 
-      method: 'DELETE' 
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     const json = await res.json();
     
@@ -308,21 +563,20 @@ async function deleteSong(filename) {
       throw new Error(json.error || 'Unknown error');
     }
     
-    // Remove from localStorage if it was in My Uploads
-    const myUploadFilenames = getMyUploadsFromStorage();
-    const updatedMyUploads = myUploadFilenames.filter(f => f !== filename);
-    saveMyUploadsToStorage(updatedMyUploads);
-    
+    removeDeleteToken(filename);
     await fetchSongs();
     showToast('Track deleted successfully', 'success');
     
-    // Handle currently playing track deletion
     if (currentPlaylist[current] && currentPlaylist[current].filename === filename) {
       if (currentPlaylist.length <= 1) {
         audio.pause();
         audio.src = '';
         nowTitle.textContent = 'No song selected';
+        trackInfo.textContent = '';
         $('#playpause').textContent = '▶';
+        updateVinylCover(null);
+        displayLyrics(null, null);
+        stopVinylAnimation();
         current = -1;
       } else {
         playNext();
@@ -351,7 +605,6 @@ async function uploadFiles(fileList, statusEl) {
   const files = Array.from(fileList);
   if (!files.length) return;
 
-  // Filter to audio only
   const audios = files.filter(f => (f.type || '').startsWith('audio/'));
   if (!audios.length) {
     showToast('Please select audio files only', 'error');
@@ -388,7 +641,7 @@ async function uploadFiles(fileList, statusEl) {
             try {
               const response = JSON.parse(xhr.responseText);
               if (response.ok && response.files) {
-                uploadedFiles.push(...response.files.map(f => f.filename));
+                uploadedFiles.push(...response.files);
                 uploadedCount++;
                 progressFill.style.width = '100%';
                 resolve();
@@ -406,7 +659,7 @@ async function uploadFiles(fileList, statusEl) {
         xhr.onerror = () => reject(new Error('Network error during upload'));
         xhr.ontimeout = () => reject(new Error('Upload timeout'));
         
-        xhr.timeout = 60000; // 60 second timeout
+        xhr.timeout = 60000;
         xhr.open('POST', '/api/upload');
         xhr.send(form);
       }).catch(err => {
@@ -416,14 +669,12 @@ async function uploadFiles(fileList, statusEl) {
       });
     }
 
-    // Add uploaded files to My Uploads
     if (uploadedFiles.length > 0) {
-      addToMyUploads(uploadedFiles);
+      addDeleteTokens(uploadedFiles);
       
       statusEl.innerHTML = `✅ Uploaded ${uploadedCount}/${audios.length} files. Refreshing...`;
       await fetchSongs();
       
-      // Switch to My Uploads tab to show new uploads
       switchTab('my');
       
       statusEl.textContent = `🎉 Upload complete! Added ${uploadedFiles.length} tracks.`;
@@ -432,7 +683,6 @@ async function uploadFiles(fileList, statusEl) {
       statusEl.textContent = '❌ No files were uploaded successfully.';
     }
 
-    // Clear progress bars after delay
     setTimeout(() => {
       uploadProgress.innerHTML = '';
       statusEl.textContent = '';
@@ -445,9 +695,70 @@ async function uploadFiles(fileList, statusEl) {
   }
 }
 
+// Cover Image Upload
+async function uploadCover(file) {
+  if (current === -1 || !currentPlaylist[current]) {
+    showToast('Please select a track first', 'error');
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('filename', currentPlaylist[current].filename);
+
+    const response = await fetch('/api/cover', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      showToast('Cover image uploaded successfully!', 'success');
+      await fetchSongs();
+      updateVinylCover(result.file.coverUrl);
+    } else {
+      throw new Error(result.error || 'Failed to upload cover');
+    }
+  } catch (error) {
+    console.error('Failed to upload cover:', error);
+    showToast(`Failed to upload cover: ${error.message}`, 'error');
+  }
+}
+
+// Lyrics File Upload
+async function uploadLyricsFile(file) {
+  if (current === -1 || !currentPlaylist[current]) {
+    showToast('Please select a track first', 'error');
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('filename', currentPlaylist[current].filename);
+
+    const response = await fetch('/api/lyrics', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      showToast('Lyrics uploaded successfully!', 'success');
+      await fetchSongs();
+      loadLyrics(currentPlaylist[current].filename);
+    } else {
+      throw new Error(result.error || 'Failed to upload lyrics');
+    }
+  } catch (error) {
+    console.error('Failed to upload lyrics:', error);
+    showToast(`Failed to upload lyrics: ${error.message}`, 'error');
+  }
+}
+
 // Event Binding Functions
 function bindControls() {
-  // Player controls
   $('#prev').addEventListener('click', playPrev);
   $('#next').addEventListener('click', playNext);
   $('#playpause').addEventListener('click', togglePlayPause);
@@ -466,17 +777,24 @@ function bindControls() {
 
   audio.addEventListener('play', () => {
     $('#playpause').textContent = '⏸';
+    startVinylAnimation();
     renderCurrentTab();
   });
 
   audio.addEventListener('pause', () => {
     $('#playpause').textContent = '▶';
+    stopVinylAnimation();
     renderCurrentTab();
+  });
+
+  // Lyrics sync for LRC files
+  audio.addEventListener('timeupdate', () => {
+    updateLyricsHighlight(audio.currentTime);
   });
 
   // Tab switching
   tabMy.addEventListener('click', () => switchTab('my'));
-  tabPublic.addEventListener('click', () => switchTab('public'));
+  tabAll.addEventListener('click', () => switchTab('all'));
 
   // Search functionality
   const debouncedSearch = debounce((term) => {
@@ -503,9 +821,31 @@ function bindControls() {
     }
   });
 
+  // Media upload controls
+  coverInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      uploadCover(e.target.files[0]);
+      e.target.value = '';
+    }
+  });
+
+  lyricsInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      uploadLyricsFile(e.target.files[0]);
+      e.target.value = '';
+    }
+  });
+
+  lyricsTextBtn.addEventListener('click', showLyricsModal);
+
+  // Modal controls
+  $('#lyrics-modal-close').addEventListener('click', hideLyricsModal);
+  $('#lyrics-cancel').addEventListener('click', hideLyricsModal);
+  $('#lyrics-save').addEventListener('click', saveLyricsText);
+  modalBackdrop.addEventListener('click', hideLyricsModal);
+
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
-    // Don't trigger shortcuts when typing in inputs
     if (e.target.matches('input, textarea, select')) return;
 
     switch (e.key.toLowerCase()) {
@@ -543,7 +883,6 @@ function bindUploader() {
   const highlight = () => dropzone.classList.add('drag');
   const unhighlight = () => dropzone.classList.remove('drag');
 
-  // Drag and drop events
   ['dragenter', 'dragover'].forEach(evt => {
     dropzone.addEventListener(evt, (e) => {
       e.preventDefault();
@@ -567,20 +906,17 @@ function bindUploader() {
     }
   });
 
-  // File input change
   fileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files.length) {
       uploadFiles(e.target.files, uploadStatus);
-      e.target.value = ''; // Reset input
+      e.target.value = '';
     }
   });
 
-  // Click to select files
   dropzone.addEventListener('click', () => {
     fileInput.click();
   });
 
-  // Keyboard support for dropzone
   dropzone.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -591,18 +927,17 @@ function bindUploader() {
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🎵 MusicPro initializing...');
+  console.log('🎵 MusicPro Enhanced initializing...');
   
   try {
     bindControls();
     bindUploader();
     await fetchSongs();
     
-    // Initialize with My Uploads tab
     switchTab('my');
     
-    console.log('🎵 MusicPro ready!');
-    showToast('MusicPro loaded successfully!', 'success');
+    console.log('🎵 MusicPro Enhanced ready!');
+    showToast('MusicPro Enhanced loaded successfully!', 'success');
   } catch (error) {
     console.error('Failed to initialize MusicPro:', error);
     showToast('Failed to initialize app', 'error');

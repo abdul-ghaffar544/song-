@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MusicPro - Upload & Play Your Music</title>
+  <title>MusicPro - Enhanced Music Player</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,12 +18,145 @@
   </nav>
 
   <main class="main-container">
-    <!-- Upload Card -->
-    <section class="upload-card card">
-      <h2 class="card-title">Upload Music</h2>
+    <!-- Record Player Section -->
+    <section class="record-player-section">
+      <div class="record-player">
+        <!-- Vinyl Record -->
+        <div class="vinyl-container">
+          <div id="vinyl-record" class="vinyl-record">
+            <!-- Vinyl grooves -->
+            <div class="vinyl-grooves">
+              <div class="groove"></div>
+              <div class="groove"></div>
+              <div class="groove"></div>
+              <div class="groove"></div>
+              <div class="groove"></div>
+            </div>
+            <!-- Center label with cover image -->
+            <div class="vinyl-center">
+              <img id="vinyl-cover" class="vinyl-cover" src="" alt="Album Cover" style="display: none;">
+              <div id="vinyl-placeholder" class="vinyl-placeholder">🎵</div>
+            </div>
+          </div>
+          <!-- Tonearm -->
+          <div id="tonearm" class="tonearm">
+            <div class="tonearm-arm"></div>
+            <div class="tonearm-head"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Player Controls Section -->
+    <section class="player-controls-section card">
+      <div class="now-playing">
+        <div class="now-playing-title">
+          <span id="now-title" class="track-title">No song selected</span>
+        </div>
+        <div class="now-playing-info">
+          <span id="track-info" class="track-info-text"></span>
+        </div>
+      </div>
+      
+      <div class="audio-container">
+        <audio id="audio" preload="none" controls></audio>
+      </div>
+      
+      <div class="control-buttons">
+        <button id="prev" class="btn-control" aria-label="Previous track" title="Previous (J)">⏮</button>
+        <button id="playpause" class="btn-control primary" aria-label="Play or pause" title="Play/Pause (Space)">▶</button>
+        <button id="next" class="btn-control" aria-label="Next track" title="Next (K)">⏭</button>
+        
+        <div class="volume-control">
+          <label for="volume" class="sr-only">Volume</label>
+          <span class="volume-icon">🔊</span>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" class="volume-slider" aria-label="Volume">
+        </div>
+        
+        <label class="toggle-control">
+          <input id="loop" type="checkbox">
+          <span class="toggle-label" title="Loop (L)">🔁</span>
+        </label>
+        
+        <label class="toggle-control">
+          <input id="shuffle" type="checkbox">
+          <span class="toggle-label" title="Shuffle (S)">🔀</span>
+        </label>
+      </div>
+
+      <!-- Cover and Lyrics Upload Controls -->
+      <div class="media-controls">
+        <div class="media-upload-group">
+          <label for="cover-input" class="btn-media" title="Upload cover image">
+            📷 Cover
+            <input type="file" id="cover-input" accept="image/*" hidden>
+          </label>
+          
+          <label for="lyrics-input" class="btn-media" title="Upload lyrics file">
+            📝 Lyrics File
+            <input type="file" id="lyrics-input" accept=".lrc,.txt" hidden>
+          </label>
+          
+          <button id="lyrics-text-btn" class="btn-media" title="Add lyrics text">
+            ✍️ Lyrics Text
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Lyrics Panel -->
+      <section class="lyrics-panel card">
+        <div class="lyrics-header">
+          <h3 class="lyrics-title">Lyrics</h3>
+          <button id="lyrics-toggle" class="btn-toggle" aria-label="Toggle lyrics panel">📝</button>
+        </div>
+        <div id="lyrics-content" class="lyrics-content">
+          <div class="lyrics-placeholder">
+            <span class="lyrics-icon">🎤</span>
+            <p>No lyrics available</p>
+            <small>Upload lyrics for the current track</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Playlist Section -->
+      <section class="playlist-section card">
+        <div class="playlist-header">
+          <h3 class="playlist-title">Playlist</h3>
+          <button id="refresh" class="btn-refresh" aria-label="Refresh playlist" title="Refresh">⟳</button>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-nav" role="tablist">
+          <button id="tab-my" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-my">My Uploads</button>
+          <button id="tab-all" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-all">All Uploads</button>
+          <div class="tab-indicator"></div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="search-container">
+          <input id="search-input" type="text" placeholder="Search tracks..." class="search-input" aria-label="Search tracks">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <!-- Tab Panels -->
+        <div id="panel-my" class="tab-panel active" role="tabpanel" aria-labelledby="tab-my">
+          <ul id="list-my" class="playlist-list"></ul>
+        </div>
+        <div id="panel-all" class="tab-panel" role="tabpanel" aria-labelledby="tab-all">
+          <ul id="list-all" class="playlist-list"></ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- Upload Section (Bottom) -->
+    <section class="upload-section card">
+      <h3 class="upload-title">Upload Music</h3>
       <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop files here or click to select">
         <div class="dropzone-content">
-          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-icon">🎵</div>
           <div class="dropzone-text">
             <strong>Drop</strong> audio files here or
             <label for="file-input" class="btn-link">choose files</label>
@@ -34,66 +167,6 @@
       </div>
       <div id="upload-status" class="upload-status" aria-live="polite"></div>
       <div id="upload-progress" class="upload-progress"></div>
-    </section>
-
-    <!-- Player Card -->
-    <section class="player-card card">
-      <h2 class="card-title">Now Playing</h2>
-      <div class="now-playing">
-        <div class="now-playing-title">
-          <span id="now-title" class="track-title">No song selected</span>
-        </div>
-      </div>
-      <div class="audio-container">
-        <audio id="audio" preload="none" controls></audio>
-      </div>
-      <div class="control-buttons">
-        <button id="prev" class="btn-control" aria-label="Previous track" title="Previous (J)">⏮</button>
-        <button id="playpause" class="btn-control primary" aria-label="Play or pause" title="Play/Pause (Space)">▶</button>
-        <button id="next" class="btn-control" aria-label="Next track" title="Next (K)">⏭</button>
-        <div class="volume-control">
-          <label for="volume" class="sr-only">Volume</label>
-          <span class="volume-icon">🔊</span>
-          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" class="volume-slider" aria-label="Volume">
-        </div>
-        <label class="toggle-control">
-          <input id="loop" type="checkbox">
-          <span class="toggle-label" title="Loop (L)">🔁</span>
-        </label>
-        <label class="toggle-control">
-          <input id="shuffle" type="checkbox">
-          <span class="toggle-label" title="Shuffle (S)">🔀</span>
-        </label>
-      </div>
-    </section>
-
-    <!-- Playlist Card -->
-    <section class="playlist-card card">
-      <div class="playlist-header">
-        <h2 class="card-title">Playlist</h2>
-        <button id="refresh" class="btn-refresh" aria-label="Refresh playlist" title="Refresh">⟳</button>
-      </div>
-      
-      <!-- Tab Navigation -->
-      <div class="tab-nav" role="tablist">
-        <button id="tab-my" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-my">My Uploads</button>
-        <button id="tab-public" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-public">Public Uploads</button>
-        <div class="tab-indicator"></div>
-      </div>
-
-      <!-- Search Input -->
-      <div class="search-container">
-        <input id="search-input" type="text" placeholder="Search tracks..." class="search-input" aria-label="Search tracks">
-        <span class="search-icon">🔍</span>
-      </div>
-
-      <!-- Tab Panels -->
-      <div id="panel-my" class="tab-panel active" role="tabpanel" aria-labelledby="tab-my">
-        <ul id="list-my" class="playlist-list"></ul>
-      </div>
-      <div id="panel-public" class="tab-panel" role="tabpanel" aria-labelledby="tab-public">
-        <ul id="list-public" class="playlist-list"></ul>
-      </div>
     </section>
   </main>
 
@@ -106,6 +179,29 @@
 
   <!-- Toast Notifications -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Lyrics Text Modal -->
+  <div id="lyrics-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Lyrics Text</h3>
+        <button id="lyrics-modal-close" class="btn-close">×</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="lyrics-textarea" placeholder="Paste lyrics here..." rows="10"></textarea>
+        <div class="modal-info">
+          <small>💡 For karaoke-style lyrics, use .lrc format with timestamps like [00:12.34]</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="lyrics-cancel" class="btn-secondary">Cancel</button>
+        <button id="lyrics-save" class="btn-primary">Save Lyrics</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backdrop for modal -->
+  <div id="modal-backdrop" class="modal-backdrop" style="display: none;"></div>
 
   <script src="app.js"></script>
 </body>
