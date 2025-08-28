@@ -1,1 +1,49 @@
-<!-- login.html with slide-in photo background -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login • MusicPro</title>
+  <link rel="stylesheet" href="login.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+  <main class="auth-grid">
+    <section class="hero" aria-hidden="true">
+      <div class="hero-photo"></div>
+      <div class="hero-overlay"></div>
+      <div class="brand">
+        <div class="logo">🎵</div>
+        <h1>MusicPro</h1>
+        <p class="muted">Upload. Play. Enjoy.</p>
+      </div>
+    </section>
+
+    <section class="panel" role="form">
+      <div class="card">
+        <h2 class="title">Welcome back</h2>
+        <p class="muted">Sign in or create an account to upload and manage your tracks.</p>
+
+        <form id="login-form" class="form">
+          <label>Email
+            <input type="email" id="email" placeholder="you@example.com" required>
+          </label>
+          <label>Password
+            <input type="password" id="password" placeholder="••••••••" minlength="6" required>
+          </label>
+
+          <div class="row">
+            <button type="submit" class="btn">Sign in</button>
+            <button type="button" id="register" class="btn-outline">Create account</button>
+          </div>
+        </form>
+
+        <div id="msg" class="msg" aria-live="polite"></div>
+        <p class="small muted">Tip: After login, you'll return to the main app.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>
