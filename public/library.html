@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Music Library • MusicPro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Background with Anime Room -->
+  <div class="background-animation">
+    <div class="anime-room-bg"></div>
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo-container">
+          <div class="logo-icon">🎵</div>
+          <div class="logo-glow"></div>
+        </div>
+        <h1 class="brand-title">MusicPro</h1>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="/app" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="/library" class="nav-link active">
+          <i class="fas fa-list"></i>
+          <span>Library</span>
+        </a>
+        <a href="/upload" class="nav-link">
+          <i class="fas fa-upload"></i>
+          <span>Upload</span>
+        </a>
+        <a href="/player" class="nav-link">
+          <i class="fas fa-play"></i>
+          <span>Player</span>
+        </a>
+      </nav>
+      
+      <div class="auth-section" id="authbox">
+        <div class="user-info" id="user-info" style="display: none;">
+          <span class="user-email" id="user-email"></span>
+          <button class="btn-logout" id="logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+        <div class="guest-info" id="guest-info" style="display: none;">
+          <span class="guest-badge">
+            <i class="fas fa-user"></i>
+            Guest Mode
+          </span>
+          <button class="btn-login" onclick="window.location.href='/'">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </button>
+        </div>
+        <div class="login-prompt" id="login-prompt">
+          <a class="btn-login" href="/">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="library-section">
+      <div class="library-card">
+        <div class="library-header">
+          <div class="library-title">
+            <h2><i class="fas fa-list"></i> Music Library</h2>
+            <span class="track-count" id="track-count">0 tracks</span>
+          </div>
+          
+          <div class="library-tabs">
+            <button class="tab-btn active" data-tab="all" id="all-tab">
+              <i class="fas fa-globe"></i>
+              All Music
+            </button>
+            <button class="tab-btn" data-tab="my" id="my-tab">
+              <i class="fas fa-user"></i>
+              My Uploads
+            </button>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input id="search" class="search-input" placeholder="Search your music..." />
+            <button class="search-clear" id="search-clear" style="display: none;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="library-container">
+          <div id="songs-grid" class="songs-grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Song Modal -->
+  <div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-edit"></i> Edit Song</h3>
+        <button class="modal-close" id="modal-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="edit-form" class="edit-form">
+        <div class="form-group">
+          <label for="edit-song-name">Song Title</label>
+          <input type="text" id="edit-song-name" name="songName" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-artist-name">Artist</label>
+          <input type="text" id="edit-artist-name" name="artistName">
+        </div>
+        <div class="form-group">
+          <label for="edit-album-name">Album</label>
+          <input type="text" id="edit-album-name" name="albumName">
+        </div>
+        <div class="form-group">
+          <label for="edit-genre">Genre</label>
+          <select id="edit-genre" name="genre">
+            <option value="">Select genre</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="jazz">Jazz</option>
+            <option value="classical">Classical</option>
+            <option value="electronic">Electronic</option>
+            <option value="hip-hop">Hip-Hop</option>
+            <option value="country">Country</option>
+            <option value="blues">Blues</option>
+            <option value="folk">Folk</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="cancel-edit">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your music...</p>
+    </div>
+  </div>
+
+  <script src="library.js"></script>
+</body>
+</html>

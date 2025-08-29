@@ -1,0 +1,19 @@
+# This project is a Node.js application and does not use Python.
+# This file exists only for platforms that require a requirements.txt.
+#
+# Runtime:
+# - Node.js 18.x (see package.json "engines")
+#
+# Install server dependencies with:
+#   npm install
+#
+# Server npm dependencies (from package.json):
+# - express@^4.19.2
+# - cors@^2.8.5
+# - multer@^1.4.5-lts.1
+# - bcrypt@^5.1.1
+# - cookie-session@^2.0.0
+# - pg@^8.11.5
+
+# Intentionally left empty for pip.
+

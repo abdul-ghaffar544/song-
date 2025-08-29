@@ -3,43 +3,92 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login • MusicPro</title>
+  <title>Login • MusicPro - Modern Music Platform</title>
   <link rel="stylesheet" href="login.css">
   <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="description" content="Sign in to MusicPro and start uploading, organizing, and playing your music collection" />
 </head>
 <body>
   <main class="auth-grid">
+    <!-- Hero Section -->
     <section class="hero" aria-hidden="true">
       <div class="hero-photo"></div>
       <div class="hero-overlay"></div>
       <div class="brand">
         <div class="logo">🎵</div>
         <h1>MusicPro</h1>
-        <p class="muted">Upload. Play. Enjoy.</p>
+        <p class="muted">Your Personal Music Universe</p>
+        <div class="hero-features">
+          <div class="feature">
+            <span class="feature-icon">🎧</span>
+            <span class="feature-text">Stream Anywhere</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📱</span>
+            <span class="feature-text">Mobile Ready</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">🔒</span>
+            <span class="feature-text">Secure & Private</span>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Login Panel -->
     <section class="panel" role="form">
       <div class="card">
-        <h2 class="title">Welcome back</h2>
-        <p class="muted">Sign in or create an account to upload and manage your tracks.</p>
+        <div class="card-header">
+          <h2 class="title">Welcome Back</h2>
+          <p class="subtitle">Sign in to access your music collection and start uploading new tracks</p>
+        </div>
 
         <form id="login-form" class="form">
-          <label>Email
-            <input type="email" id="email" placeholder="you@example.com" required>
-          </label>
-          <label>Password
-            <input type="password" id="password" placeholder="••••••••" minlength="6" required>
-          </label>
+          <div class="form-group">
+            <label for="email">
+              <span class="label-text">Email Address</span>
+              <input 
+                type="email" 
+                id="email" 
+                placeholder="Enter your email address" 
+                required
+                autocomplete="email"
+              >
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">
+              <span class="label-text">Password</span>
+              <input 
+                type="password" 
+                id="password" 
+                placeholder="Enter your password" 
+                minlength="6" 
+                required
+                autocomplete="current-password"
+              >
+            </label>
+          </div>
 
-          <div class="row">
-            <button type="submit" class="btn">Sign in</button>
-            <button type="button" id="register" class="btn-outline">Create account</button>
+          <div class="form-actions">
+            <button type="submit" class="btn" id="submit-btn">
+              <span class="btn-icon">🚀</span>
+              <span class="btn-text">Sign In</span>
+            </button>
+            <button type="button" id="register" class="btn-outline">
+              <span class="btn-icon">✨</span>
+              <span class="btn-text">Create Account</span>
+            </button>
           </div>
         </form>
 
-        <div id="msg" class="msg" aria-live="polite"></div>
-        <p class="small muted">Tip: After login, you'll return to the main app.</p>
+        <div id="msg" class="msg" aria-live="polite" role="alert"></div>
+        
+        <div class="card-footer">
+          <p class="small">💡 After login, you'll return to the main music player</p>
+          <p class="small">🔐 Your data is encrypted and secure</p>
+        </div>
       </div>
     </section>
   </main>

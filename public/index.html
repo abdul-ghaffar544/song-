@@ -1,81 +1,494 @@
 <!doctype html>
 <html lang="en">
 <head>
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MusicPro • Uploader & Player</title>
+  <title>MusicPro • Modern Music Uploader & Player</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="favicon.png" />
-  
+  <meta name="description" content="Upload, organize, and play your music collection with MusicPro's modern interface" />
 </head>
 <body>
+  <!-- Header -->
   <header class="container topbar">
-    <h1>🎧 MusicPro</h1>
+    <div class="brand">
+      <h1>MusicPro</h1>
+      <span class="tagline">Modern Music Experience</span>
+    </div>
     <div class="authbox" id="authbox">
       <!-- replaced by JS: login link or user email + logout -->
       <a class="btn-outline sm" href="/login">Login</a>
     </div>
   </header>
 
+  <!-- Navigation Bar -->
+  <nav class="navigation">
+    <div class="container">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <button class="nav-link active" data-page="home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Home</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-page="search">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-text">Search</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-page="library">
+            <span class="nav-icon">📚</span>
+            <span class="nav-text">Library</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-page="account">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Account</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
   <main class="container">
+    <!-- Home Page -->
+    <div class="page-content active" id="home-page">
     <!-- Player/controls (top) -->
     <section class="controls card">
+        <div class="player-header">
+          <h2>🎵 Now Playing</h2>
+          <div class="player-stats">
+            <span class="stat">Songs: <span id="song-count">0</span></span>
+            <span class="stat">Duration: <span id="total-duration">0:00</span></span>
+          </div>
+        </div>
+        
       <div class="record-wrap">
         <div class="record" id="record">
           <div class="record-center"></div>
+            <div class="record-grooves"></div>
         </div>
       </div>
 
       <div class="now-playing">
         <span id="now-title">No song selected</span>
+          <div class="progress-info">
+            <span id="current-time">0:00</span>
+            <span id="total-time">0:00</span>
+          </div>
       </div>
 
       <audio id="audio" preload="none" controls></audio>
 
       <div class="control-buttons">
-        <button id="prev" class="btn-outline">⏮ Prev</button>
-        <button id="playpause" class="btn">▶/⏸ Play/Pause</button>
-        <button id="next" class="btn-outline">⏭ Next</button>
-        <label class="vol">Vol <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-        <label class="chk"><input id="loop" type="checkbox"> Loop</label>
-        <label class="chk"><input id="shuffle" type="checkbox"> Shuffle</label>
+          <button id="prev" class="btn-outline control-btn" title="Previous Track">
+            <span class="icon">⏮</span>
+            <span class="label">Prev</span>
+          </button>
+          <button id="playpause" class="btn control-btn" title="Play/Pause">
+            <span class="icon">▶</span>
+            <span class="label">Play</span>
+          </button>
+          <button id="next" class="btn-outline control-btn" title="Next Track">
+            <span class="icon">⏭</span>
+            <span class="label">Next</span>
+          </button>
+        </div>
+
+        <div class="player-options">
+          <label class="vol">
+            <span class="label">Volume</span>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="1" title="Volume Control">
+          </label>
+          <label class="chk">
+            <input id="loop" type="checkbox" title="Loop Playlist">
+            <span class="label">Loop</span>
+          </label>
+          <label class="chk">
+            <input id="shuffle" type="checkbox" title="Shuffle Playlist">
+            <span class="label">Shuffle</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Music Tiles Section -->
+      <section class="music-tiles card">
+        <div class="tiles-header">
+          <h2>🎵 Your Music</h2>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="recent">Recent</button>
+            <button class="filter-tab" data-filter="favorites">Favorites</button>
+          </div>
+        </div>
+        
+        <div class="tiles-grid">
+          <!-- Recent Uploads -->
+          <div class="tile small recent" data-category="recent">
+            <div class="tile-image">
+              <div class="tile-icon">📁</div>
+              <div class="tile-overlay">
+                <span class="tile-title">Recent Uploads</span>
+                <span class="tile-subtitle">Latest music</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- My Collection -->
+          <div class="tile small collection" data-category="collection">
+            <div class="tile-image">
+              <div class="tile-icon">🎼</div>
+              <div class="tile-overlay">
+                <span class="tile-title">My Collection</span>
+                <span class="tile-subtitle">Personal library</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- All Music -->
+          <div class="tile small all-music" data-category="all-music">
+            <div class="tile-image">
+              <div class="tile-icon">🌍</div>
+              <div class="tile-overlay">
+                <span class="tile-title">All Music</span>
+                <span class="tile-subtitle">Community uploads</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Upload New -->
+          <div class="tile small upload" data-category="upload">
+            <div class="tile-image">
+              <div class="tile-icon">📤</div>
+              <div class="tile-overlay">
+                <span class="tile-title">Upload New</span>
+                <span class="tile-subtitle">Add music</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-item">
+            <span class="stat-number" id="total-songs">0</span>
+            <span class="stat-label">Total Songs</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="my-uploads">0</span>
+            <span class="stat-label">My Uploads</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="total-duration-display">0:00</span>
+            <span class="stat-label">Total Duration</span>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+          <h3>Recent Activity</h3>
+          <div class="activity-list" id="activity-list">
+            <div class="activity-item">
+              <span class="activity-icon">🎵</span>
+              <span class="activity-text">Welcome to MusicPro!</span>
+            </div>
+          </div>
       </div>
     </section>
 
-    <!-- Playlist with tabs + search -->
+      <!-- Uploader (bottom) -->
+      <section class="uploader card">
+        <div class="uploader-header">
+          <h2>📤 Upload Music</h2>
+          <p class="subtitle">Drag & drop or click to upload your audio files</p>
+        </div>
+        
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload music files">
+          <div class="dropzone-content">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+              <strong>Drop</strong> audio files here or
+              <label for="file-input" class="btn">Choose Files</label>
+            </div>
+            <input type="file" id="file-input" accept="audio/*" multiple hidden />
+          </div>
+          <div class="upload-info">
+            <small class="accepted-formats">Accepted: mp3, wav, ogg, m4a, aac, flac</small>
+            <small class="file-limit">Maximum: 50 MB per file</small>
+          </div>
+        </div>
+        
+        <div id="upload-status" class="status"></div>
+        
+        <div class="upload-progress" id="upload-progress" style="display: none;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-text" id="progress-text">0%</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Search Page -->
+    <div class="page-content" id="search-page">
+      <section class="search-page card">
+        <div class="search-page-header">
+          <h2>🔍 Search Music</h2>
+          <p class="subtitle">Find your favorite tracks and discover new music</p>
+        </div>
+        
+        <div class="search-container">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input id="search-main" class="search" placeholder="Search for songs, artists, or albums..." />
+          </div>
+          <div class="search-stats">
+            <span id="search-results-main">Start typing to search...</span>
+          </div>
+        </div>
+        
+        <div class="search-filters">
+          <div class="filter-group">
+            <label>Genre</label>
+            <select id="genre-filter">
+              <option value="">All Genres</option>
+              <option value="rock">Rock</option>
+              <option value="pop">Pop</option>
+              <option value="jazz">Jazz</option>
+              <option value="classical">Classical</option>
+              <option value="electronic">Electronic</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Duration</label>
+            <select id="duration-filter">
+              <option value="">Any Duration</option>
+              <option value="short">Short (< 3 min)</option>
+              <option value="medium">Medium (3-6 min)</option>
+              <option value="long">Long (> 6 min)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="search-results">
+          <ul id="search-list"></ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- Library Page -->
+    <div class="page-content" id="library-page">
     <section class="playlist card">
-      <div class="row">
-        <h2>Playlist</h2>
+        <div class="playlist-header">
+          <div class="playlist-title">
+            <h2>🎼 Music Library</h2>
+            <p class="subtitle">Organize and discover your music collection</p>
+          </div>
         <div class="tabs">
           <button class="tab" data-tab="my">👤 My Uploads</button>
           <button class="tab active" data-tab="all">🌍 All Uploads</button>
         </div>
       </div>
-      <input id="search" class="search" placeholder="Search filename…" />
-      <ul id="list"></ul>
-    </section>
-
-    <!-- Uploader (bottom) -->
-    <section class="uploader">
-      <div id="dropzone" class="dropzone" tabindex="0">
-        <div>
-          <strong>Drop</strong> audio files here or
-          <label for="file-input" class="btn">Choose Files</label>
-          <input type="file" id="file-input" accept="audio/*" multiple hidden />
+        
+        <div class="search-container">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input id="search" class="search" placeholder="Search your music collection..." />
+          </div>
+          <div class="search-stats">
+            <span id="search-results">Showing all songs</span>
+          </div>
         </div>
-        <small class="muted">Accepted: mp3, wav, ogg, m4a, aac, flac (≤ 50 MB each)</small>
-      </div>
-      <div id="upload-status" class="status"></div>
+        
+        <div class="playlist-content">
+      <ul id="list"></ul>
+        </div>
     </section>
+    </div>
+
+    <!-- Account Page -->
+    <div class="page-content" id="account-page">
+      <section class="account-page card">
+        <div class="account-header">
+          <h2>👤 Account Settings</h2>
+          <p class="subtitle">Manage your profile and preferences</p>
+        </div>
+        
+        <div class="account-content">
+          <div class="profile-section">
+            <h3>Profile Information</h3>
+            <div class="profile-info">
+              <div class="profile-avatar">
+                <span class="avatar-icon">👤</span>
+              </div>
+              <div class="profile-details">
+                <p><strong>Email:</strong> <span id="user-email">Not logged in</span></p>
+                <p><strong>Member Since:</strong> <span id="member-since">-</span></p>
+                <p><strong>Total Uploads:</strong> <span id="total-uploads">0</span></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="preferences-section">
+            <h3>Preferences</h3>
+            <div class="preference-item">
+              <label>
+                <input type="checkbox" id="auto-play"> Auto-play next song
+              </label>
+            </div>
+            <div class="preference-item">
+              <label>
+                <input type="checkbox" id="show-notifications"> Show notifications
+              </label>
+            </div>
+            <div class="preference-item">
+              <label>
+                <input type="checkbox" id="dark-mode"> Dark mode (always)
+              </label>
+            </div>
+          </div>
+          
+          <div class="account-actions">
+            <button class="btn" id="save-preferences">Save Preferences</button>
+            <button class="btn-outline" id="export-data">Export My Data</button>
+            <button class="btn-outline danger" id="delete-account">Delete Account</button>
+        </div>
+      </div>
+    </section>
+    </div>
   </main>
 
-  <footer class="container muted">
-    <p>
-      Tip: Only the uploader can delete their files.
-      <button id="logout" class="btn-outline sm" style="float:right;display:none">Logout</button>
-    </p>
+  <!-- Footer -->
+  <footer class="container">
+    <div class="footer-content">
+      <div class="footer-info">
+        <p>🎵 MusicPro - Your personal music streaming platform</p>
+        <p class="tip">💡 Tip: Only the uploader can delete their files</p>
+      </div>
+      <div class="footer-actions">
+        <button id="logout" class="btn-outline sm" style="display:none">Logout</button>
+      </div>
+    </div>
   </footer>
+
+  <!-- Fixed Audio Bar - Always Visible at Bottom -->
+  <div class="fixed-audio-bar" id="audio-bar">
+    <div class="audio-bar-content">
+      <!-- Now Playing Info -->
+      <div class="now-playing-info">
+        <div class="track-details">
+          <span class="track-title" id="now-title-fixed">No song selected</span>
+          <span class="track-artist" id="now-artist-fixed">MusicPro</span>
+        </div>
+        <div class="time-display">
+          <span id="current-time-fixed">0:00</span>
+          <span class="time-separator">/</span>
+          <span id="total-time-fixed">0:00</span>
+        </div>
+      </div>
+      
+      <!-- Audio Controls -->
+      <div class="audio-controls">
+        <button id="prev-fixed" class="control-btn-fixed" title="Previous Track">
+          <span class="icon">⏮</span>
+        </button>
+        <button id="playpause-fixed" class="control-btn-fixed play-pause" title="Play">
+          <span class="icon">▶</span>
+        </button>
+        <button id="next-fixed" class="control-btn-fixed" title="Next Track">
+          <span class="icon">⏭</span>
+        </button>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="audio-progress">
+        <div class="progress-bar-fixed">
+          <div class="progress-fill-fixed" id="progress-fill-fixed"></div>
+        </div>
+      </div>
+      
+      <!-- Volume and Options -->
+      <div class="audio-options">
+        <div class="volume-control">
+          <span class="volume-icon">🔊</span>
+          <input type="range" id="volume-fixed" min="0" max="1" step="0.01" value="1" title="Volume">
+        </div>
+        <div class="playback-options">
+          <button id="loop-fixed" class="option-btn" title="Loop">
+            <span class="icon">🔁</span>
+          </button>
+          <button id="shuffle-fixed" class="option-btn" title="Shuffle">
+            <span class="icon">🔀</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Screen Player Overlay -->
+  <div class="fullscreen-player" id="fullscreen-player">
+    <div class="fullscreen-content">
+      <!-- Close Button -->
+      <button class="close-btn" id="close-fullscreen">
+        <span class="icon">✕</span>
+      </button>
+      
+      <!-- Cover Art Section -->
+      <div class="cover-art-section">
+        <div class="cover-art-container" id="cover-art-container">
+          <!-- Cover Art or Animation will be inserted here -->
+        </div>
+        <div class="song-info-fullscreen">
+          <h1 class="song-title-fullscreen" id="song-title-fullscreen">No song selected</h1>
+          <p class="song-artist-fullscreen" id="song-artist-fullscreen">MusicPro</p>
+          <p class="song-album-fullscreen" id="song-album-fullscreen">Unknown Album</p>
+        </div>
+      </div>
+      
+      <!-- Full Screen Controls -->
+      <div class="fullscreen-controls">
+        <div class="control-row">
+          <button class="control-btn-large" id="prev-fullscreen" title="Previous Track">
+            <span class="icon">⏮</span>
+          </button>
+          <button class="control-btn-large play-pause-large" id="playpause-fullscreen" title="Play">
+            <span class="icon">▶</span>
+          </button>
+          <button class="control-btn-large" id="next-fullscreen" title="Next Track">
+            <span class="icon">⏭</span>
+          </button>
+        </div>
+        
+        <!-- Progress Bar Full Screen -->
+        <div class="progress-section">
+          <div class="time-display-fullscreen">
+            <span id="current-time-fullscreen">0:00</span>
+            <span id="total-time-fullscreen">0:00</span>
+          </div>
+          <div class="progress-bar-fullscreen" id="progress-bar-fullscreen">
+            <div class="progress-fill-fullscreen" id="progress-fill-fullscreen"></div>
+          </div>
+        </div>
+        
+        <!-- Additional Controls -->
+        <div class="additional-controls">
+          <button class="control-btn-medium" id="loop-fullscreen" title="Loop">
+            <span class="icon">🔁</span>
+          </button>
+          <button class="control-btn-medium" id="shuffle-fullscreen" title="Shuffle">
+            <span class="icon">🔀</span>
+          </button>
+          <div class="volume-control-fullscreen">
+            <span class="volume-icon">🔊</span>
+            <input type="range" id="volume-fullscreen" min="0" max="1" step="0.01" value="1" title="Volume">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
